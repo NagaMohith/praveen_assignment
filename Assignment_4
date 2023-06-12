@@ -1,0 +1,24 @@
+CREATE TABLE cust_1 (
+  cust_id INT,
+  prod_name ARRAY<STRING>,
+  price ARRAY<INT>
+)
+STORED AS ORC;
+
+
+INSERT INTO TABLE cust_1
+SELECT 111, array("a", "b", "c"), array(10, 20, 30)
+UNION ALL
+SELECT 112, array("d", "e", "f"), array(30, 20, 40);
+
+
+SELECT
+  c.cust_id,
+  p.product_name,
+  t.price
+FROM
+  cust_1 c
+LATERAL VIEW posexplode(c.prod_name) p AS pos, product_name
+LATERAL VIEW posexplode(c.price) t AS pos,price
+WHERE
+  t.pos = p.pos;
